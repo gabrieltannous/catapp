@@ -1,0 +1,6 @@
+[
+    {
+        "name": "catapp",
+        "imageUri": "426746725987.dkr.ecr.ap-southeast-2.amazonaws.com/catapp:latest"
+    }
+]
