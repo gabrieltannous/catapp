@@ -1,0 +1,31 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - REPOSITORY_URI=426746725987.dkr.ecr.ap-southeast-2.amazonaws.com/catapp
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - npm install -g mocha
+  pre_build:
+    commands:
+      - npm install
+      - npm test -- --bail --ci
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: no
